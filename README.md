@@ -1,80 +1,58 @@
+# Flight Booking System - Microservice Architecture
+
+This project is a Flight Booking System built using Node.js and MySQL, following a microservice architecture. It consists of multiple microservices such as authentication, API gateway, booking service, flight and search service, and reminder service. The communication between the microservices is facilitated by RabbitMQ, which acts as the message queue.
+
+## Microservices
 
 
-This is a base node js project template, which anyone can use as it has been prepared, by keeping some of the most important code principles and project management recommendations. Feel free to change anything.
+1. [API-gateway-flights](https://github.com/hossain-asif/API-gateway-flights)
 
-`src` -> Inside the src folder all the actual source code regarding the project will reside, this will not include any kind of tests. (You might want to make separate tests folder)
+   - Responsible for user authentication and authorization.
+   - Manages user accounts, login, and registration.
+   - Generates and verifies JSON Web Tokens (JWT) for secure API access.
+   - Serves as the entry point for external requests to the system.
+   - Provides a unified API interface for clients to communicate with various microservices.
+   - Performs request validation, rate limiting, and routing to the appropriate microservice.
 
-Lets take a look inside the `src` folder
+2. [Flight-booking-service](https://github.com/hossain-asif/Flight-booking-service)
 
-`config` -> In this folder anything and everything regarding any configurations or setup of a library or module will be done. For example: setting up `dotenv` so that we can use the environment variables anywhere in a cleaner fashion, this is done in the `server-config.js`. One more example can be to setup you logging library that can help you to prepare meaningful logs, so configuration for this library should also be done here.
+   - Handles flight bookings and related operations.
+   - Allows users to select seats, make reservations and make payment.
+   - Manages booking details and communicates with the flight and search service.
 
-`routes` -> In the routes folder, we register a route and the corresponding middleware and controllers to it.
+3. [Flight and Search Service](https://github.com/hossain-asif/Flights-service)
 
-`middlewares` -> they are just going to intercept the incoming requests where we can write our validators, authenticators etc.
+   - Manages flight information, including available seats, prices, and schedules.
+   - Provides search functionality for users to find flights based on criteria such as origin, destination, and date.
+   - Sends notifications to the booking service about flight availability and updates.
 
-`controllers` -> they are kind of the last middlewares as post them you call you business layer to execute the budiness logic. In controllers we just receive the incoming requests and data and then pass it to the business layer, and once business layer returns an output, we structure the API response in controllers and send the output.
+4. [Flight-notification-service](https://github.com/hossain-asif/Flight-notification-service)
 
-`repositories` -> this folder contains all the logic using which we interact the DB by writing queries, all the raw queries or ORM queries will go here.
-
-`services` -> contains the business logic and interacts with repositories for data from the database
-
-`utils` -> contains helper methods, error classes etc.
-
-Setup the project
-Download this template from github and open it in your favourite text editor.
-Go inside the folder path and execute the following command:
-```
-npm install
-```
-In the root directory create a .env file and add the following env variables
-
-    PORT = <port number of your choice>
-ex:
-    PORT=3000
+   - Sends reminders and notifications to users about upcoming flights, check-in details, and booking updates.
+   - Integrates with external notification systems (e.g., email, SMS) to deliver messages.
 
 
-- npm install sequelize
-- npm install mysql2
-- npm install sequelize-cli
-go inside the src folder and execute the following command:
+## Database
 
-  npx sequelize init
-By executing the above command you will get migrations and seeders folder along with a config.json inside the config folder.
+The Flight Booking Service interacts with the MySQL database to store and retrieve flight booking information. The necessary database tables and their structure can be found in the `database` folder.
 
+Ensure that you have set up the database connection details correctly in the configuration file of the Booking Service.
 
-Inside the `src/config` folder create a file named as `config.json` and write the following code:
-```
-{
-  "development": {
-    "username": "root",
-    "password": null,
-    "database": "database_development",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  }
-}
-```
-If you're setting up your development environment, then write the username of your db, password of your db and in dialect mention whatever db you are using for ex: mysql, mariadb etc
+## RabbitMQ Integration
 
-If you're setting up test or production environment, make sure you also replace the host with the hosted db url.
+The Flight Booking Service integrates with RabbitMQ, the message queue system, to receive notifications and updates from other microservices, such as the Flight and Search Service. This enables real-time communication and synchronization between different components of the Flight Booking System.
+
+Make sure to configure the RabbitMQ connection details in the Booking Service's configuration file to establish a connection and listen to the relevant message queues.
 
 
 
-To run the server execute
-```
-npm run dev
-```
+
+## Acknowledgments
+
+I would like to acknowledge the following resources and libraries that contributed to the development of the Booking Service:
+
+- Node.js: https://nodejs.org/
+- MySQL: https://www.mysql.com/
+- RabbitMQ: https://www.rabbitmq.com/
+- Express.js: https://expressjs.com/
+- Other dependencies mentioned in the `package.json` file.

@@ -2,7 +2,7 @@
 const axios = require('axios');
 const { BookingRepository } = require('../repositories');
 const db = require('../models/index');
-const { ServerConfig } = require('../config');
+const { ServerConfig, Queue } = require('../config');
 const { AppError } = require('../utils/errors');
 const { StatusCodes } = require('http-status-codes');
 const {Enums} = require('../utils/response');
@@ -27,6 +27,8 @@ async function createBooking(data){
         const booking = await bookingRepository.create(bookingPayload, transaction);
 
         await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flight/${data.flightId}/seats`, { seats: data.noOfSeats });
+
+
 
         await transaction.commit();
         return booking;
@@ -66,6 +68,13 @@ async function makePayment(data){
         await bookingRepository.update(data.bookingId,{
             status: BOOKED
         }, transaction);
+
+        Queue.sendData({
+            recepientEmail: 'temporaryacount1997@gmail.com',
+            subject: "Flight booked.",
+            text: `Booking successfully done for the flight ${data.bookingId}`
+        });
+
         await transaction.commit();
 
     } catch (error) {
