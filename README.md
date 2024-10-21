@@ -1,6 +1,7 @@
 # Flight Booking System - Microservice Architecture
 
-This project is a Flight Booking System built using Node.js and MySQL, following a microservice architecture. It consists of multiple microservices such as authentication, API gateway, booking service, flight and search service, and reminder service. The communication between the microservices is facilitated by RabbitMQ, which acts as the message queue.
+This project is a Flight Booking System built using Node.js and MySQL, following a microservice architecture. It consists of multiple microservices such as API gateway, booking service, flight and search service, and notification service. The communication between the microservices is facilitated by RabbitMQ, which acts as the message queue.
+
 
 ## Microservices
 
