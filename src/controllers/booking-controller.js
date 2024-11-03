@@ -3,6 +3,8 @@ const { StatusCodes } = require("http-status-codes");
 const { BookingService } = require("../services");
 const {SuccessResponse, ErrorResponse} = require('../utils/response');
 
+const {Redis} = require('../config');
+
 const inMemDb = {};
 
 async function createBooking(req, res){
@@ -30,6 +32,7 @@ async function createBooking(req, res){
 
 async function makePayment(req, res){
     
+    // console.log(req.headers);
     try{
         const idempotencyKey = req.headers['x-idempotency-key'];
         if(!idempotencyKey ) {
@@ -37,8 +40,18 @@ async function makePayment(req, res){
                 .status(StatusCodes.BAD_REQUEST)
                 .json({message: 'idempotency key missing'});
         }
+
+        const inMemoryData = await Redis.client.get(idempotencyKey);
+        // console.log(inMemoryData);
+
+        const sameUserAndCost = await Redis.client.get(`${req.body.userId} ${req.body.totalCost}`);
+
+        if(sameUserAndCost){
+            return(StatusCodes.BAD_REQUEST)
+            .json('Can not payment same amount of money for 100 seconds');
+        }
     
-        if(inMemDb[idempotencyKey]) {
+        if(inMemoryData) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({message: 'Cannot retry on a successful payment'});
@@ -49,8 +62,19 @@ async function makePayment(req, res){
             userId: req.body.userId,
             bookingId: req.body.bookingId
         });
+
+        
+
+        await Redis.client.set(`${req.body.userId} ${req.body.totalCost}`, req.body.totalCost);
+        await Redis.client.expire(`${req.body.userId} ${req.body.totalCost}`, 100);
+        await Redis.client.ttl(`${req.body.userId} ${req.body.totalCost}`);
+
     
-        inMemDb[idempotencyKey] = idempotencyKey;
+        // inMemDb[idempotencyKey] = idempotencyKey;
+        await Redis.client.set(idempotencyKey, req.body.userId);
+        await Redis.client.expire(idempotencyKey, 2*24*60*60);
+        await Redis.client.ttl(idempotencyKey);
+
         SuccessResponse.data = response;
         return res
                 .status(StatusCodes.OK)
