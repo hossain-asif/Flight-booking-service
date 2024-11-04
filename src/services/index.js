@@ -1,3 +1,4 @@
 module.exports = {
-    BookingService: require('./booking-services')
+    BookingService: require('./booking-services'),
+    BulkInsertService: require('./bulkInsert-service')
 }

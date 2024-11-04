@@ -11,9 +11,8 @@ class RecordRepository extends CrudRepository{
         super(Record);
     }
 
-    async createRecord(data){
-        let response = await Record.bulkCreate(data);
-        return response;
+    async createRecord(batch, transaction){
+        await Record.bulkCreate(batch, { transaction: transaction});
     }
 
 
